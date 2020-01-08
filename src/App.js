@@ -1,13 +1,11 @@
-import React from "react";
+import React from 'react';
+import SearchBar from './components/SearchBar';
 
 const App = () => {
   return (
     <>
-      <div>Import your component here!</div>
-      <div>
-        Have a look at the readme.md file for what is expected. And as always:
-        questions are welcome!
-      </div>
+      <div>Gul Assignment</div>
+      <SearchBar />
     </>
   );
 };
