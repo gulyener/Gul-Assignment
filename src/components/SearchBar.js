@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { ChevronDown } from 'styled-icons/boxicons-regular/ChevronDown';
 import { Search } from 'styled-icons/icomoon/Search';
@@ -157,6 +157,7 @@ const SearchBar = () => {
   };
 
   const handleFocus = () => {
+    inputWrapper.current.focus();
     setPlaceholder('Type or search...');
     setLabelState('up');
     setListState('active');
@@ -176,15 +177,17 @@ const SearchBar = () => {
   return (
     <>
       <Dropdown>
-        <InputContainer className={labelState} onFocus={handleFocus} onBlur={handleBlur}>
+        <InputContainer className={labelState}>
           <SearchIcon className={labelState} />
-          <FloatingLabel for="floatField">Contact</FloatingLabel>
+          <FloatingLabel htmlFor="floatField">Contact</FloatingLabel>
           <Input
             id="floatField"
             type="text"
             placeholder={placeholder}
             value={searchField}
             onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           ></Input>
 
           <InvisibleButton
@@ -199,7 +202,7 @@ const SearchBar = () => {
           <Ul>
             {filteredNames.length > 0 &&
               filteredNames.map(option => (
-                <Li onMouseDown={handleMouseDown} data-id={option.name}>
+                <Li onMouseDown={handleMouseDown} data-id={option.name} key={option.name}>
                   {option.name}
                 </Li>
               ))}
