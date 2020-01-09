@@ -10,7 +10,7 @@ const namesList = data.default.filter(option => option.name);
 namesList.sort((a, b) => a.name.localeCompare(b.name));
 
 const ChevronIcon = styled(ChevronDown)`
-  padding: 10px;
+  margin-right: 10px;
   color: #798697;
   width: 30px;
 `;
@@ -45,6 +45,17 @@ const FloatingLabel = styled.label`
   }
 `;
 
+const Input = styled.input`
+  min-width: 230px;
+  margin: 0;
+  padding: 16px 0px;
+  font-size: 16px;
+  color: #798697;
+  background-color: transparent;
+  border: none;
+  outline: 0;
+`;
+
 const InputContainer = styled.div`
   position: relative;
   margin: 0;
@@ -66,17 +77,10 @@ const InputContainer = styled.div`
   &.up ${FloatingLabel} {
     transform: translate(-32px, -22px) scale(1);
   }
-`;
 
-const Input = styled.input`
-  min-width: 230px;
-  margin: 0;
-  padding: 16px 0px;
-  font-size: 16px;
-  color: #798697;
-  background-color: transparent;
-  border: none;
-  outline: 0;
+  &.up ${Input} {
+    color: #4a4a4a;
+  }
 `;
 
 const ListContainer = styled.div`
@@ -101,6 +105,25 @@ const Ul = styled.ul`
   overflow-y: scroll;
   overflow-x: hidden;
   max-height: 250px;
+
+  ::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+  }
+
+  ::-webkit-scrollbar:vertical {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(23, 71, 102);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    border-radius: 0 4px 4px 0;
+    background-color: rgb(222, 226, 230);
+  }
 `;
 
 const Li = styled.li`
@@ -134,6 +157,10 @@ const SearchBar = () => {
   const [labelState, setLabelState] = useState('');
   const [listState, setListState] = useState('');
 
+  let timeOutId = null;
+  // to make the whole input container clickable
+  const inputRef = useRef();
+
   const filteredNames = namesList.filter(option => {
     const userName = option.name.toLowerCase();
     const searchText = searchField.toLowerCase();
@@ -145,39 +172,51 @@ const SearchBar = () => {
     setSearchField(searchText);
   };
 
-  const handleMouseDown = event => {
-    setListState('active');
+  const handleClick = event => {
+    clearTimeout(timeOutId);
     const value = event.target.dataset.id;
     setSearchField(value);
-    // when a name is chosen, close the list, label stays on top
+    // if a name is chosen, close the list, label stays on top
     if (value) {
       setLabelState('up');
       setListState('');
     }
   };
 
+  const handleBlur = () => {
+    // if there is a name chosen, label stays up else clear everything
+    if (searchField.length > 0) {
+      setLabelState('up');
+    } else {
+      timeOutId = setTimeout(() => {
+        setListState('');
+        setLabelState('');
+        setPlaceholder('');
+      }, 100);
+    }
+  };
+
   const handleFocus = () => {
-    inputWrapper.current.focus();
+    clearTimeout(timeOutId);
     setPlaceholder('Type or search...');
     setLabelState('up');
     setListState('active');
   };
 
-  const handleBlur = () => {
-    if (searchField.length > 0) {
-      setLabelState('up');
-      setListState('');
-    } else {
-      setListState('');
-      setLabelState('');
-      setPlaceholder('');
-    }
+  const handleChevronClick = event => {
+    event.stopPropagation();
+    listState !== 'active' ? setListState('active') : setListState('');
   };
 
   return (
     <>
       <Dropdown>
-        <InputContainer className={labelState}>
+        <InputContainer
+          className={labelState}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onClick={() => inputRef.current.focus()}
+        >
           <SearchIcon className={labelState} />
           <FloatingLabel htmlFor="floatField">Contact</FloatingLabel>
           <Input
@@ -186,28 +225,23 @@ const SearchBar = () => {
             placeholder={placeholder}
             value={searchField}
             onChange={handleChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
+            ref={inputRef}
           ></Input>
-
-          <InvisibleButton
-            onClick={() => {
-              listState !== 'active' ? setListState('active') : setListState('');
-            }}
-          >
+          <InvisibleButton onClick={handleChevronClick}>
             <ChevronIcon />
           </InvisibleButton>
         </InputContainer>
-        <ListContainer className={listState}>
-          <Ul>
-            {filteredNames.length > 0 &&
-              filteredNames.map(option => (
-                <Li onMouseDown={handleMouseDown} data-id={option.name} key={option.name}>
+        {filteredNames.length > 0 && (
+          <ListContainer className={listState}>
+            <Ul>
+              {filteredNames.map(option => (
+                <Li onClick={handleClick} data-id={option.name} key={option.name}>
                   {option.name}
                 </Li>
               ))}
-          </Ul>
-        </ListContainer>
+            </Ul>
+          </ListContainer>
+        )}
       </Dropdown>
     </>
   );
