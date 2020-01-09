@@ -10,12 +10,14 @@ const namesList = data.default.filter(option => option.name);
 namesList.sort((a, b) => a.name.localeCompare(b.name));
 
 const ChevronIcon = styled(ChevronDown)`
-  margin-right: 10px;
   color: #798697;
   width: 30px;
+  margin-right: 10px;
 `;
 
 const SearchIcon = styled(Search)`
+  flex-basis: 20px;
+  flex-shrink: 0;
   color: transparent;
   width: 20px;
   padding: 0 10px;
@@ -27,26 +29,28 @@ const SearchIcon = styled(Search)`
 `;
 
 const Dropdown = styled.div`
-  position: absolute;
   display: inline-block;
+  width: 300px;
   margin: 50px;
-  min-width: 300px;
+  padding: 20px;
 `;
 
-const FloatingLabel = styled.label`
-  position: absolute;
-  font-size: 18px;
-  transform-origin: top center;
-  transform: translate(-5px, 15px) scale(1);
-  transition: 0.4s ease-in-out;
+const InvisibleButton = styled.button`
+  flex-basis: 20px;
+  flex-shrink: 0;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 
-  &:hover {
-    cursor: text;
+  &:focus {
+    outline: none;
   }
 `;
 
 const Input = styled.input`
-  min-width: 230px;
+  flex-grow: 1;
+  display: block;
   margin: 0;
   padding: 16px 0px;
   font-size: 16px;
@@ -56,7 +60,22 @@ const Input = styled.input`
   outline: 0;
 `;
 
+const FloatingLabel = styled.label`
+  position: absolute;
+  font-size: 18px;
+  transform-origin: top center;
+  transform: translate(30px, 15px) scale(1);
+  transition: 0.4s ease-in-out;
+
+  &:hover {
+    cursor: text;
+  }
+`;
+
 const InputContainer = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
   position: relative;
   margin: 0;
   color: #798697;
@@ -75,7 +94,7 @@ const InputContainer = styled.div`
   }
 
   &.up ${FloatingLabel} {
-    transform: translate(-32px, -22px) scale(1);
+    transform: translate(3px, -22px) scale(1);
   }
 
   &.up ${Input} {
@@ -137,17 +156,6 @@ const Li = styled.li`
   &:hover {
     background-color: #f7f7f7;
     color: #4a4a4a;
-  }
-`;
-
-const InvisibleButton = styled.button`
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-
-  &:focus {
-    outline: none;
   }
 `;
 
@@ -226,7 +234,7 @@ const SearchBar = () => {
             value={searchField}
             onChange={handleChange}
             ref={inputRef}
-          ></Input>
+          />
           <InvisibleButton onClick={handleChevronClick}>
             <ChevronIcon />
           </InvisibleButton>
