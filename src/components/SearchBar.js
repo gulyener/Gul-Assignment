@@ -54,9 +54,9 @@ const Button = styled.button`
   flex: 0 0 10px;
   padding: 0;
 
-  // &:focus {
-  //   outline: none;
-  // }
+  &:focus {
+    outline: none;
+  }
 `;
 
 const Input = styled.input`
@@ -105,11 +105,11 @@ const InputContainer = styled.div`
     border: 1px solid #4a4a4a;
   }
 
-  &.up ${FloatingLabel} {
+  &.isAbove ${FloatingLabel} {
     transform: translate(3px, -20px) scale(0.85);
   }
 
-  &.up ${Input} {
+  &.isAbove ${Input} {
     color: #4a4a4a;
   }
 `;
@@ -175,20 +175,8 @@ const Li = styled.li`
 const SearchBar = () => {
   const [searchField, setSearchField] = useState('');
   const [placeholder, setPlaceholder] = useState('');
-  const [labelState, setLabelState] = useState('');
-  const [listState, setListState] = useState('');
-
-  const handleKeyPress = event => {
-    if (event.keyCode === '9') {
-      event.preventDefault();
-      inputRef.nextElementByTabIndex.focus();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, []);
+  const [labelState, setLabelState] = useState(null);
+  const [listState, setListState] = useState(null);
 
   let timeOutId = null;
   const inputRef = useRef();
@@ -209,15 +197,15 @@ const SearchBar = () => {
     const value = event.target.dataset.id;
     setSearchField(value);
     if (value) {
-      setLabelState('up');
-      setListState('');
+      setLabelState('isAbove');
+      setListState(null);
     }
   };
 
   const handleBlur = () => {
     timeOutId = setTimeout(() => {
-      setListState('');
-      setLabelState('');
+      setListState(null);
+      setLabelState(null);
       setPlaceholder('');
       setSearchField('');
     }, 50);
@@ -226,8 +214,8 @@ const SearchBar = () => {
   const handleFocus = () => {
     clearTimeout(timeOutId);
     setPlaceholder('Type or search...');
-    setLabelState('up');
-    setListState('active');
+    setLabelState('isAbove');
+    setListState('isShown');
   };
 
   const clearSearchField = event => {
@@ -247,7 +235,7 @@ const SearchBar = () => {
       <Container>
         <InputContainer
           role="search"
-          aria-label="Search for names"
+          aria-label="Search names"
           className={labelState}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -264,7 +252,7 @@ const SearchBar = () => {
             ref={inputRef}
           />
 
-          {listState === 'active' ? (
+          {listState === 'isShown' ? (
             <Button onClick={clearSearchField} aria-label="Clear field and exit">
               <ResetIcon />
             </Button>
@@ -275,16 +263,10 @@ const SearchBar = () => {
           )}
         </InputContainer>
         {filteredNames.length > 0 && (
-          <ListContainer active={listState} aria-label="list of names">
-            <Ul role="listbox" hideScroll={filteredNames.length < 6 ? 'hideScroll' : ''}>
+          <ListContainer active={listState} aria-label="Names list">
+            <Ul role="listbox" hideScroll={filteredNames.length < 6 ? 'hideScroll' : null}>
               {filteredNames.map(item => (
-                <Li
-                  role="option"
-                  tabindex="0"
-                  onClick={handleClick}
-                  data-id={item.name}
-                  key={item.name}
-                >
+                <Li role="option" onClick={handleClick} data-id={item.name} key={item.name}>
                   {item.name}
                 </Li>
               ))}
