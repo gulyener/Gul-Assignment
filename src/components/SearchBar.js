@@ -1,52 +1,67 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { ChevronDown } from 'styled-icons/boxicons-regular/ChevronDown';
+import { CloseCircle } from 'styled-icons/remix-line/CloseCircle';
 import { Search } from 'styled-icons/icomoon/Search';
 import * as data from '../../MOCK_DATA.json';
 
-// import names and filter out the ones that are null
-const namesList = data.default.filter(option => option.name);
-// sort names by alphabetical order
-namesList.sort((a, b) => a.name.localeCompare(b.name));
+// filter out the names that are null and sort by alphabetical order
+const namesList = data.default
+  .filter(option => option.name)
+  .sort((a, b) => a.name.localeCompare(b.name));
 
-const ChevronIcon = styled(ChevronDown)`
-  margin-right: 10px;
-  color: #798697;
-  width: 30px;
+const transition = '0.4s ease-in-out';
+
+const Container = styled.div`
+  position: relative;
+  margin: 0 auto;
+  padding: 100px;
 `;
 
-const SearchIcon = styled(Search)`
-  color: transparent;
-  width: 20px;
-  padding: 0 10px;
-
-  &.up {
-    color: rgb(23, 71, 102);
-    transition: color 0.4s ease-in-out;
+const ChevronIcon = styled(ChevronDown)`
+  transition: ${transition};
+  color: #798697;
+  cursor: pointer;
+  width: 30px;
+  margin-right: 20px;
+  &:hover {
+    color: #4a4a4a;
   }
 `;
 
-const Dropdown = styled.div`
-  position: absolute;
-  display: inline-block;
-  margin: 50px;
-  min-width: 300px;
+const ResetIcon = styled(CloseCircle)`
+  transition: ${transition};
+  color: #798697;
+  cursor: pointer;
+  width: 25px;
+  margin-right: 25px;
+  &:hover {
+    color: #174766;
+  }
 `;
 
-const FloatingLabel = styled.label`
-  position: absolute;
-  font-size: 18px;
-  transform-origin: top center;
-  transform: translate(-5px, 15px) scale(1);
-  transition: 0.4s ease-in-out;
+const SearchIcon = styled(Search)`
+  color: ${props => (props.above ? '#174766' : 'transparent')};
+  transition: ${transition};
+  width: 20px;
+  margin-left: 5px;
+  padding: 0 10px;
+`;
 
-  &:hover {
-    cursor: text;
+const Button = styled.button`
+  background-color: transparent;
+  border: none;
+  flex: 0 0 10px;
+  padding: 0;
+
+  &:focus {
+    outline: none;
   }
 `;
 
 const Input = styled.input`
-  min-width: 230px;
+  flex-grow: 1;
+  min-width: 80px;
   margin: 0;
   padding: 16px 0px;
   font-size: 16px;
@@ -54,10 +69,27 @@ const Input = styled.input`
   background-color: transparent;
   border: none;
   outline: 0;
+  overflow: hidden;
+`;
+
+const FloatingLabel = styled.label`
+  position: absolute;
+  font-size: 20px;
+  transform-origin: top center;
+  transform: translate(35px, 14px) scale(1);
+  transition: ${transition};
+
+  &:hover {
+    cursor: text;
+  }
 `;
 
 const InputContainer = styled.div`
-  position: relative;
+  transition: ${transition};
+  display: flex;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  min-width: 150px;
   margin: 0;
   color: #798697;
   background-color: white;
@@ -65,7 +97,6 @@ const InputContainer = styled.div`
   border-radius: 5px;
 
   &:hover {
-    color: #798697;
     border: 1px solid #4a4a4a;
   }
 
@@ -74,27 +105,24 @@ const InputContainer = styled.div`
     border: 1px solid #4a4a4a;
   }
 
-  &.up ${FloatingLabel} {
-    transform: translate(-32px, -22px) scale(1);
+  &.isAbove ${FloatingLabel} {
+    transform: translate(3px, -20px) scale(0.85);
   }
 
-  &.up ${Input} {
+  &.isAbove ${Input} {
     color: #4a4a4a;
   }
 `;
 
 const ListContainer = styled.div`
   position: relative;
-  display: none;
+  display: ${props => (props.active ? 'block' : 'none')};
   margin-top: 3px;
   border: 1px solid #bfc5cd;
   border-radius: 5px;
   color: #4a4a4a;
   box-shadow: 0 5px 15px 0 rgba(74, 74, 74, 0.15);
-
-  &.active {
-    display: block;
-  }
+  min-width: 150px;
 `;
 
 const Ul = styled.ul`
@@ -102,9 +130,13 @@ const Ul = styled.ul`
   border-radius: 5px;
   padding: 0;
   margin: 0;
-  overflow-y: scroll;
+  overflow-y: ${props => (props.hideScroll ? 'hidden' : 'scroll')};
   overflow-x: hidden;
-  max-height: 250px;
+  max-height: 400px;
+
+  @media (max-width: 768px) {
+    max-height: 250px;
+  }
 
   ::-webkit-scrollbar {
     -webkit-appearance: none;
@@ -128,7 +160,7 @@ const Ul = styled.ul`
 
 const Li = styled.li`
   background-color: #ffffff;
-  padding: 5px 15px;
+  padding: 5px 20px;
   line-height: 30px;
   text-decoration: none;
   font-size: 18px;
@@ -140,25 +172,13 @@ const Li = styled.li`
   }
 `;
 
-const InvisibleButton = styled.button`
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-
-  &:focus {
-    outline: none;
-  }
-`;
-
 const SearchBar = () => {
   const [searchField, setSearchField] = useState('');
   const [placeholder, setPlaceholder] = useState('');
-  const [labelState, setLabelState] = useState('');
-  const [listState, setListState] = useState('');
+  const [labelState, setLabelState] = useState(null);
+  const [listState, setListState] = useState(null);
 
   let timeOutId = null;
-  // to make the whole input container clickable
   const inputRef = useRef();
 
   const filteredNames = namesList.filter(option => {
@@ -176,48 +196,52 @@ const SearchBar = () => {
     clearTimeout(timeOutId);
     const value = event.target.dataset.id;
     setSearchField(value);
-    // if a name is chosen, close the list, label stays on top
     if (value) {
-      setLabelState('up');
-      setListState('');
+      setLabelState('isAbove');
+      setListState(null);
     }
   };
 
   const handleBlur = () => {
-    // if there is a name chosen, label stays up else clear everything
-    if (searchField.length > 0) {
-      setLabelState('up');
-    } else {
-      timeOutId = setTimeout(() => {
-        setListState('');
-        setLabelState('');
-        setPlaceholder('');
-      }, 100);
-    }
+    timeOutId = setTimeout(() => {
+      setListState(null);
+      setLabelState(null);
+      setPlaceholder('');
+      setSearchField('');
+    }, 50);
   };
 
   const handleFocus = () => {
     clearTimeout(timeOutId);
     setPlaceholder('Type or search...');
-    setLabelState('up');
-    setListState('active');
+    setLabelState('isAbove');
+    setListState('isShown');
   };
 
-  const handleChevronClick = event => {
-    event.stopPropagation();
-    listState !== 'active' ? setListState('active') : setListState('');
+  const clearSearchField = event => {
+    if (event.target.tagName === 'svg') {
+      event.stopPropagation();
+      if (searchField) {
+        setSearchField('');
+        inputRef.current.focus();
+      } else {
+        handleBlur();
+      }
+    }
   };
 
   return (
     <>
-      <Dropdown>
+      <Container>
         <InputContainer
+          role="search"
+          aria-label="Search names"
           className={labelState}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onClick={() => inputRef.current.focus()}
         >
-          <SearchIcon className={labelState} />
+          <SearchIcon above={labelState} />
           <FloatingLabel htmlFor="floatField">Contact</FloatingLabel>
           <Input
             id="floatField"
@@ -226,23 +250,30 @@ const SearchBar = () => {
             value={searchField}
             onChange={handleChange}
             ref={inputRef}
-          ></Input>
-          <InvisibleButton onClick={handleChevronClick}>
-            <ChevronIcon />
-          </InvisibleButton>
+          />
+
+          {listState === 'isShown' ? (
+            <Button onClick={clearSearchField} aria-label="Clear field and exit">
+              <ResetIcon />
+            </Button>
+          ) : (
+            <Button aria-hidden="true">
+              <ChevronIcon />
+            </Button>
+          )}
         </InputContainer>
         {filteredNames.length > 0 && (
-          <ListContainer className={listState}>
-            <Ul>
-              {filteredNames.map(option => (
-                <Li onClick={handleClick} data-id={option.name} key={option.name}>
-                  {option.name}
+          <ListContainer active={listState} aria-label="Names list">
+            <Ul role="listbox" hideScroll={filteredNames.length < 6 ? 'hideScroll' : null}>
+              {filteredNames.map(item => (
+                <Li role="option" onClick={handleClick} data-id={item.name} key={item.name}>
+                  {item.name}
                 </Li>
               ))}
             </Ul>
           </ListContainer>
         )}
-      </Dropdown>
+      </Container>
     </>
   );
 };
