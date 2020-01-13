@@ -59,6 +59,7 @@ const Li = styled.li`
   &:hover {
     background-color: #f7f7f7;
     color: #4a4a4a;
+    cursor: default;
   }
 `;
 
