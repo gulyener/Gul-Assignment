@@ -159,6 +159,7 @@ const SearchBar = () => {
             ref={inputRef}
             above={isAbove}
             active={isOpen}
+            data-testid="InputField"
           />
           {isOpen ? (
             <ResetIcon
