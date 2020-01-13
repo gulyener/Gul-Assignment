@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { ChevronDown } from 'styled-icons/boxicons-regular/ChevronDown';
 import { CloseCircle } from 'styled-icons/remix-line/CloseCircle';
 import { Search } from 'styled-icons/icomoon/Search';
 import * as data from '../../MOCK_DATA.json';
+import DropdownList from './DropdownList';
 
 // filter out the names that are null and sort by alphabetical order
 const namesList = data.default
@@ -40,11 +41,11 @@ const ResetIcon = styled(CloseCircle)`
 `;
 
 const SearchIcon = styled(Search)`
+  display: ${props => (props.active ? 'block' : 'none')};
   color: #174766;
   width: 15px;
   margin-left: 5px;
   padding: 0 10px;
-  display: ${props => (props.active ? 'block' : 'none')};
 `;
 
 const FloatingLabel = styled.label`
@@ -81,9 +82,7 @@ const InputContainer = styled.div`
   transition: ${transition};
   display: flex;
   justify-content: flex-start;
-  box-sizing: border-box;
   min-width: 150px;
-  margin: 0;
   color: #798697;
   background-color: white;
   border: 1px solid #bfc5cd;
@@ -91,63 +90,6 @@ const InputContainer = styled.div`
 
   &:hover {
     border: 1px solid #4a4a4a;
-  }
-`;
-
-const ListContainer = styled.div`
-  display: ${props => (props.active ? 'block' : 'none')};
-  margin-top: 3px;
-  border: 1px solid #bfc5cd;
-  border-radius: 5px;
-  color: #4a4a4a;
-  box-shadow: 0 5px 15px 0 rgba(74, 74, 74, 0.15);
-  min-width: 150px;
-`;
-
-const Ul = styled.ul`
-  list-style-type: none;
-  border-radius: 5px;
-  padding: 0;
-  margin: 0;
-  overflow-y: ${props => (props.hideScroll ? 'hidden' : 'scroll')};
-  overflow-x: hidden;
-  max-height: 400px;
-
-  @media (max-width: 768px) {
-    max-height: 250px;
-  }
-
-  ::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width: 7px;
-  }
-
-  ::-webkit-scrollbar:vertical {
-    width: 12px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: rgb(23, 71, 102);
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-track {
-    border-radius: 0 4px 4px 0;
-    background-color: rgb(222, 226, 230);
-  }
-`;
-
-const Li = styled.li`
-  background-color: #ffffff;
-  padding: 5px 20px;
-  line-height: 30px;
-  text-decoration: none;
-  font-size: 18px;
-  color: #798697;
-
-  &:hover {
-    background-color: #f7f7f7;
-    color: #4a4a4a;
   }
 `;
 
@@ -230,15 +172,11 @@ const SearchBar = () => {
           )}
         </InputContainer>
         {filteredNames.length > 0 && (
-          <ListContainer active={isOpen} aria-label="List of names">
-            <Ul role="listbox" hideScroll={filteredNames.length < 6 ? true : null}>
-              {filteredNames.map(item => (
-                <Li role="option" onClick={handleClick} data-id={item.name} key={item.name}>
-                  {item.name}
-                </Li>
-              ))}
-            </Ul>
-          </ListContainer>
+          <DropdownList
+            isOpen={isOpen}
+            handleClick={handleClick}
+            names={filteredNames}
+          ></DropdownList>
         )}
       </Container>
     </>
