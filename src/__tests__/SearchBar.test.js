@@ -1,72 +1,90 @@
 import React, { useState } from 'react';
 import { shallow, mount } from 'enzyme';
-import styled from 'styled-components';
+
+import styled, { find } from 'styled-components/test-utils';
 
 import 'jest-styled-components';
-import toJson from 'enzyme-to-json';
 
-import SearchBar, {
-  InputContainer,
-  Input,
-  InvisibleButton,
-  ListContainer,
-} from '../components/SearchBar';
+import SearchBar, { ListContainer, Input, Button, Li } from '../components/SearchBar';
 
-describe('<InvisibleButton> component', () => {
-  // it('renders correctly', () => {
-  //   const tree = renderer
-  //     .create(
-  //       <InvisibleButton>
-  //         <ChevronIcon />
-  //       </InvisibleButton>,
-  //     )
-  //     .toJSON();
-  //   expect(tree).toMatchSnapshot();
-  // });
-});
+describe('SearchBar Component', () => {
+  let wrapper;
 
-describe.only('SearchBar Component', () => {
-  const handleClick = jest.fn();
-
-  let wrapper = mount(<SearchBar />);
+  beforeEach(() => {
+    wrapper = mount(<SearchBar />);
+  });
 
   it('renders like it should', () => {
-    expect(wrapper).not.toBeNull();
+    expect(wrapper.isEmptyRender()).toEqual(false);
   });
 
-  it('should render Button with the correct styles', () => {
-    const component = mount(<InvisibleButton onClick={handleClick} />);
-    component.find(InvisibleButton).simulate('click');
+  it('changes border color on hover', () => {
+    let container = wrapper.find({'data-testid': "InputComponent"});
 
-    expect(component).toHaveStyleRule('border', 'none');
+    expect(container).toHaveStyleRule('border', '1px solid #bfc5cd');
+    expect(container).toHaveStyleRule('border', '1px solid #4a4a4a', {
+      modifier: ':hover',
+    });
   });
 
-  it('should toggle ListContainer when InvisibleButton gets clicked', () => {
-    wrapper.find(InvisibleButton).simulate('click');
-    const ListComponent = wrapper.find(ListContainer);
+  it('render input component', () => {
+    const InputElement = wrapper.find('#floatField');
 
-    expect(handleClick).toHaveBeenCalled();
-    expect(ListComponent.hasClass('active')).toEqual(true);
+    expect(InputElement).toHaveStyleRule('margin', '0');
+    // expect({
+    //   InputComponent,
+    //   modifier: '&:hover',
+    // }).toHaveStyleRule('border', 'none');
   });
 
-  it('when user types in input, searchField state changes', () => {
+  it('clears searchfield when button gets clicked', () => {
+    // const testState = { searchField: '' };
+    // const handleClick = jest.fn();
+    // wrapper.find('[testid="clear-button"]').exists();
+    // handleClick.simulate('click');
+    // expect(handleClick).toHaveBeenCalled();
+    // expect(ListComponent.state(active)).toEqual(true);
+  });
+
+  it('changes searchField state when user types', () => {
     const testState = { searchField: '' };
 
     const InputComponent = shallow(
       <Input
         value={testState.searchField}
         onChange={e => {
-          testState[e.target.searchField] = e.target.value;
+          testState.searchField = e.target.value;
         }}
       />,
     );
 
     InputComponent.simulate('change', {
-      target: { searchField: 'searchField', value: 'John Doe' },
+      target: { value: 'John Doe' },
     });
 
     expect(testState.searchField).toEqual('John Doe');
+  });
 
-    // expect(handleDivClick).toHaveBeenCalled();
+  it('calls onCLick handler with the right arguments', () => {
+    const testState = { searchField: '' };
+    const handleClick = event => {
+      testState.searchField = event.target.dataset.id;
+    };
+
+    const mockItem = [{ name: 'Wade Dugmore' }];
+
+    const wrapperList = mount(
+      <Li data-id={mockItem[0].name} key={mockItem[0].name} onClick={handleClick}>
+        {mockItem[0].name}
+      </Li>,
+    );
+
+    wrapperList.simulate('click', { target: wrapperList }).at(0);
+
+    expect(testState.searchField).toEqual('Jane Doe');
+    // expect(wrapperList.clicked).toEqual(true);
+
+    expect(handleClick.mock.calls.length).toEqual(1);
+    // expect(handleClick.calledWith(mockItem, false)).to.be.true;
   });
 });

@@ -10,19 +10,18 @@ const namesList = data.default
   .filter(option => option.name)
   .sort((a, b) => a.name.localeCompare(b.name));
 
-const transition = '0.4s ease-in-out';
+const transition = '0.35s ease-in-out';
 
 const Container = styled.div`
-  position: relative;
   margin: 0 auto;
-  padding: 100px;
+  padding: 100px 50px;
 `;
 
 const ChevronIcon = styled(ChevronDown)`
   transition: ${transition};
+  flex: 0 0 30px;
   color: #798697;
   cursor: pointer;
-  width: 30px;
   margin-right: 20px;
   &:hover {
     color: #4a4a4a;
@@ -31,9 +30,9 @@ const ChevronIcon = styled(ChevronDown)`
 
 const ResetIcon = styled(CloseCircle)`
   transition: ${transition};
+  flex: 0 0 25px;
   color: #798697;
   cursor: pointer;
-  width: 25px;
   margin-right: 25px;
   &:hover {
     color: #174766;
@@ -41,21 +40,22 @@ const ResetIcon = styled(CloseCircle)`
 `;
 
 const SearchIcon = styled(Search)`
-  color: ${props => (props.above ? '#174766' : 'transparent')};
-  transition: ${transition};
-  width: 20px;
+  color: #174766;
+  width: 15px;
   margin-left: 5px;
   padding: 0 10px;
+  display: ${props => (props.active ? 'block' : 'none')};
 `;
 
-const Button = styled.button`
-  background-color: transparent;
-  border: none;
-  flex: 0 0 10px;
-  padding: 0;
+const FloatingLabel = styled.label`
+  position: absolute;
+  font-size: 20px;
+  transform: ${props =>
+    props.above ? 'translate(3px, -22px) scale(0.8)' : 'translate(35px, 14px) scale(1)'};
+  transition: ${transition};
 
-  &:focus {
-    outline: none;
+  &:hover {
+    cursor: text;
   }
 `;
 
@@ -65,22 +65,15 @@ const Input = styled.input`
   margin: 0;
   padding: 16px 0px;
   font-size: 16px;
-  color: #798697;
+  color: ${props => (props.above ? '#4a4a4a' : '#798697')};
   background-color: transparent;
+  padding-left: ${props => (props.above && !props.active ? '30px' : '0')};
   border: none;
   outline: 0;
   overflow: hidden;
-`;
 
-const FloatingLabel = styled.label`
-  position: absolute;
-  font-size: 20px;
-  transform-origin: top center;
-  transform: translate(35px, 14px) scale(1);
-  transition: ${transition};
-
-  &:hover {
-    cursor: text;
+  ::placeholder {
+    color: #bfc5cd;
   }
 `;
 
@@ -99,23 +92,9 @@ const InputContainer = styled.div`
   &:hover {
     border: 1px solid #4a4a4a;
   }
-
-  &:focus {
-    color: #bfc5cd;
-    border: 1px solid #4a4a4a;
-  }
-
-  &.isAbove ${FloatingLabel} {
-    transform: translate(3px, -20px) scale(0.85);
-  }
-
-  &.isAbove ${Input} {
-    color: #4a4a4a;
-  }
 `;
 
 const ListContainer = styled.div`
-  position: relative;
   display: ${props => (props.active ? 'block' : 'none')};
   margin-top: 3px;
   border: 1px solid #bfc5cd;
@@ -174,11 +153,9 @@ const Li = styled.li`
 
 const SearchBar = () => {
   const [searchField, setSearchField] = useState('');
-  const [placeholder, setPlaceholder] = useState('');
-  const [labelState, setLabelState] = useState(null);
-  const [listState, setListState] = useState(null);
+  const [isAbove, setIsAbove] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  let timeOutId = null;
   const inputRef = useRef();
 
   const filteredNames = namesList.filter(option => {
@@ -193,40 +170,27 @@ const SearchBar = () => {
   };
 
   const handleClick = event => {
-    clearTimeout(timeOutId);
     const value = event.target.dataset.id;
     setSearchField(value);
     if (value) {
-      setLabelState('isAbove');
-      setListState(null);
+      setIsAbove(true);
+      setIsOpen(false);
     }
   };
 
-  const handleBlur = () => {
-    timeOutId = setTimeout(() => {
-      setListState(null);
-      setLabelState(null);
-      setPlaceholder('');
-      setSearchField('');
-    }, 50);
-  };
-
   const handleFocus = () => {
-    clearTimeout(timeOutId);
-    setPlaceholder('Type or search...');
-    setLabelState('isAbove');
-    setListState('isShown');
+    setIsAbove(true);
+    setIsOpen(true);
   };
 
   const clearSearchField = event => {
-    if (event.target.tagName === 'svg') {
-      event.stopPropagation();
-      if (searchField) {
-        setSearchField('');
-        inputRef.current.focus();
-      } else {
-        handleBlur();
-      }
+    event.stopPropagation();
+    if (searchField) {
+      setSearchField('');
+      inputRef.current.focus();
+    } else {
+      setIsOpen(false);
+      setIsAbove(false);
     }
   };
 
@@ -234,37 +198,40 @@ const SearchBar = () => {
     <>
       <Container>
         <InputContainer
+          data-testid="InputComponent"
           role="search"
-          aria-label="Search names"
-          className={labelState}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          aria-label="Search for names"
           onClick={() => inputRef.current.focus()}
         >
-          <SearchIcon above={labelState} />
-          <FloatingLabel htmlFor="floatField">Contact</FloatingLabel>
+          <SearchIcon active={isOpen} />
+          <FloatingLabel htmlFor="floatField" above={isAbove}>
+            Contact
+          </FloatingLabel>
           <Input
             id="floatField"
             type="text"
-            placeholder={placeholder}
             value={searchField}
+            placeholder={isOpen ? 'Type or search...' : ''}
             onChange={handleChange}
+            onFocus={handleFocus}
             ref={inputRef}
+            above={isAbove}
+            active={isOpen}
           />
-
-          {listState === 'isShown' ? (
-            <Button onClick={clearSearchField} aria-label="Clear field and exit">
-              <ResetIcon />
-            </Button>
+          {isOpen ? (
+            <ResetIcon
+              role="button"
+              aria-label="Clear and exit"
+              onClick={clearSearchField}
+              data-testid="CloseButton"
+            />
           ) : (
-            <Button aria-hidden="true">
-              <ChevronIcon />
-            </Button>
+            <ChevronIcon />
           )}
         </InputContainer>
         {filteredNames.length > 0 && (
-          <ListContainer active={listState} aria-label="Names list">
-            <Ul role="listbox" hideScroll={filteredNames.length < 6 ? 'hideScroll' : null}>
+          <ListContainer active={isOpen} aria-label="List of names">
+            <Ul role="listbox" hideScroll={filteredNames.length < 6 ? true : null}>
               {filteredNames.map(item => (
                 <Li role="option" onClick={handleClick} data-id={item.name} key={item.name}>
                   {item.name}
