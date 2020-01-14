@@ -1,3 +1,6 @@
+## Final Notes from Gul
+I have enjoyed this assignment thoroughly and learned a lot from it, so thank you! I added a close button which clears the search field on the first click and closes the dropdown list on the second one. The chevron-down icon is only for the show, input container is clickable as a whole.  
+
 # DatHuis frontend assignment
 The goal of this assignment is to give you an idea of how it would be to work in the DatHuis stack and us an idea of the quality of code we can expect from you working at DatHuis. For the assignment we would like you to build a search as you type dropdown component. The user story is defined as follows:
 
