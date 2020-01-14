@@ -37,5 +37,4 @@ module.exports = {
     BASE_URL: '',
     IS_TEST: true,
   },
-  snapshotSerializers: ['enzyme-to-json/serializer'],
 };

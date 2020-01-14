@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<SearchBar/> Component renders <SearchBar/> snapshot 1`] = `ReactWrapper {}`;
+
+exports[`SearchBar Component renders <SearchBar/> 1`] = `ReactWrapper {}`;

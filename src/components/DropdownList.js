@@ -63,7 +63,7 @@ const Li = styled.li`
   }
 `;
 
-const ListComponent = ({ names, handleClick, isOpen }) => {
+const DropdownList = ({ names, handleClick, isOpen }) => {
   return (
     <ListContainer active={isOpen} aria-label="List of names">
       <Ul role="listbox" hideScroll={names.length < 6 ? true : null}>
@@ -77,4 +77,4 @@ const ListComponent = ({ names, handleClick, isOpen }) => {
   );
 };
 
-export default ListComponent;
+export default DropdownList;

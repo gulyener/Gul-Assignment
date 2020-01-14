@@ -54,7 +54,6 @@ const FloatingLabel = styled.label`
   transform: ${props =>
     props.above ? 'translate(3px, -22px) scale(0.8)' : 'translate(35px, 14px) scale(1)'};
   transition: ${transition};
-
   &:hover {
     cursor: text;
   }
@@ -72,7 +71,6 @@ const Input = styled.input`
   border: none;
   outline: 0;
   overflow: hidden;
-
   ::placeholder {
     color: #bfc5cd;
   }
@@ -87,7 +85,6 @@ const InputContainer = styled.div`
   background-color: white;
   border: 1px solid #bfc5cd;
   border-radius: 5px;
-
   &:hover {
     border: 1px solid #4a4a4a;
   }
