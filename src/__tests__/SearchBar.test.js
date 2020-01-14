@@ -15,17 +15,16 @@ describe('SearchBar Component', () => {
 
   afterEach(() => {
     wrapper.unmount();
-    jest.clearAllMocks();
   });
 
   // Match snapshot
-  // it('renders like it should', () => {
-  //   const InputContainer = wrapper.find({ 'data-testid': 'InputComponent' });
-  //   expect(InputContainer).toMatchSnapshot();
-  // });
+  it('matches snapshot', () => {
+    const InputContainer = wrapper.find({ 'data-testid': 'InputComponent' }).at(0);
+    expect(InputContainer).toMatchSnapshot();
+  });
 
   // Step 1: User sees an input
-  it('renders like it should', () => {
+  it('renders correctly', () => {
     expect(wrapper.isEmptyRender()).toEqual(false);
   });
 
@@ -38,47 +37,70 @@ describe('SearchBar Component', () => {
     });
   });
 
-  //Step 3: User clicks on Input. focus is on input field, Search Icon is visible, List is open
+  //Step 3: User clicks on InputContainer, focus is on input field, Search Icon is visible, List is open
 
-  // it('sets list state to active and label moves up', () => {
-  //   const InputWrapper = wrapper.find({ 'data-testid': 'InputField' });
+  it('checks if InputContainer focuses input element', () => {
+    const InputContainer = wrapper.find({ 'data-testid': 'InputComponent' }).at(0);
+    InputContainer.simulate('click');
+    expect(InputContainer.find('input').get(0).ref.current).toEqual(document.activeElement);
+  });
 
-  //   InputWrapper.find('input').simulate('click');
-  //   expect(InputWrapper.find('input').get(0).ref.current).toEqual(document.activeElement);
+  it('sets list state to active and label moves up', () => {
+    const InputField = wrapper.find({ 'data-testid': 'InputField' }).at(0);
+    const SearchIcon = wrapper
+      .find('SearchBar__SearchIcon')
+      .at(0)
+      .props();
+    const Label = wrapper
+      .find('SearchBar__FloatingLabel')
+      .at(0)
+      .props();
 
-  //   console.log(document.activeElement);
-  //   const InputElement = InputWrapper.at(0);
-  //   expect(InputElement.props().active).toBe(true);
-  // });
+    expect(SearchIcon.active).toBe(false);
+    expect(Label.above).toBe(false);
+
+    act(() => {
+      InputField.prop('onFocus')();
+    });
+
+    wrapper.update();
+    expect(
+      wrapper
+        .find('SearchBar__SearchIcon')
+        .at(0)
+        .props().active,
+    ).toBe(true);
+    expect(
+      wrapper
+        .find('SearchBar__FloatingLabel')
+        .at(0)
+        .props().above,
+    ).toBe(true);
+  });
 
   // Step 4: User starts typing, text color changes. List is open, List gets filtered.
   // OnChange searchfield
-  // it('changes searchField state when user types', () => {
-  //   const testState = { searchField: '' };
+  it('changes searchField state when user types', () => {
+    const InputField = wrapper.find({ 'data-testid': 'InputField' }).at(0);
 
-  //   const InputComponent = shallow(
-  //     <Input
-  //       value={testState.searchField}
-  //       onChange={e => {
-  //         testState.searchField = e.target.value;
-  //       }}
-  //     />,
-  //   );
+    InputField.simulate('change', {
+      target: { value: 'Jane Doe' },
+    });
+    wrapper.update();
+    expect(
+      wrapper
+        .find({ 'data-testid': 'InputField' })
+        .at(0)
+        .props().value,
+    ).toBe('Jane Doe');
+  });
 
-  //   InputComponent.simulate('change', {
-  //     target: { value: 'John Doe' },
-  //   });
-
-  //   expect(testState.searchField).toEqual('John Doe');
-  // });
-
-  // Close button - on first click search field gets cleared, on second click it closes the list
   it('closes list when button gets clicked', () => {
-    const InputBefore = wrapper.find({ 'data-testid': 'InputField' }).at(0);
+    const InputField = wrapper.find({ 'data-testid': 'InputField' }).at(0);
 
     // Focus on input element so that close button is rendered
     act(() => {
-      InputBefore.prop('onFocus')();
+      InputField.prop('onFocus')();
     });
     wrapper.update();
 
@@ -92,8 +114,7 @@ describe('SearchBar Component', () => {
     expect(wrapper.find({ 'data-testid': 'DropdownListComponent' }).props().isOpen).toBe(false);
   });
 
-  // if field is not empty
-  it('clears searchfield when button gets clicked', () => {
+  it('clears searchfield when button gets clicked then closes list', () => {
     const InputField = wrapper.find({ 'data-testid': 'InputField' }).at(0);
 
     // Focus on input element and enter a value
@@ -114,8 +135,6 @@ describe('SearchBar Component', () => {
     const closeButton = wrapper.find({ 'data-testid': 'CloseButton' }).at(0);
     closeButton.simulate('click');
     wrapper.update();
-
-    // Search field is empty, List is open
     expect(
       wrapper
         .find({ 'data-testid': 'InputField' })
@@ -124,17 +143,13 @@ describe('SearchBar Component', () => {
     ).toBe('');
     expect(wrapper.find({ 'data-testid': 'DropdownListComponent' }).props().isOpen).toBe(true);
 
-    // Click for the second time
+    // Click for the second time, List is closed
     closeButton.simulate('click');
     wrapper.update();
-
-    // List is closed
     expect(wrapper.find({ 'data-testid': 'DropdownListComponent' }).props().isOpen).toBe(false);
   });
 
-  // Step 5: Selection is made. Text color is #4a4a4a
-  // Test handleClick function
-
+  // Step 5: Selection is made. Test handleClick function
   it('changes searchField state when user makes selection', () => {
     const ListItem = wrapper.find('li').at(0);
     ListItem.simulate('click');
