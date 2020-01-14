@@ -22,11 +22,4 @@ describe('SearchBar Component', () => {
       expect(wrapper.text()).toMatch(item.name);
     });
   });
-
-  // it('filters list when user types', () => {
-  //   names.map(item => {
-  //     expect(wrapper.text()).toMatch(item.name);
-  //   });
-  //   console.log(wrapper.props);
-  // });
 });

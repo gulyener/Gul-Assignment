@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import { shallow, mount } from 'enzyme';
+import React from 'react';
+import Enzyme, { mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import { act } from 'react-dom/test-utils';
 import 'jest-styled-components';
 import SearchBar from '../components/SearchBar';
 
-// enzyme.configure({ adapter: new Adapter() });
+Enzyme.configure({ adapter: new Adapter() });
 
 describe('SearchBar Component', () => {
+  const names = [{ name: 'John Doe' }, { name: 'Jane Doe' }, { name: 'Elle Woods' }];
   let wrapper;
 
   beforeEach(() => {
-    wrapper = mount(<SearchBar />);
+    wrapper = mount(<SearchBar names={names} />);
   });
 
   afterEach(() => {
@@ -18,9 +20,8 @@ describe('SearchBar Component', () => {
   });
 
   // Match snapshot
-  it('matches snapshot', () => {
-    const InputContainer = wrapper.find({ 'data-testid': 'InputComponent' }).at(0);
-    expect(InputContainer).toMatchSnapshot();
+  it('renders <SearchBar/>', () => {
+    expect(wrapper).toMatchSnapshot();
   });
 
   // Step 1: User sees an input

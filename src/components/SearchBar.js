@@ -177,6 +177,7 @@ const SearchBar = () => {
             isOpen={isOpen}
             handleClick={handleClick}
             names={filteredNames}
+            data-testid="DropdownListComponent"
           ></DropdownList>
         )}
       </Container>
