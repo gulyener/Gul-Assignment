@@ -2,31 +2,22 @@ import React from 'react';
 import styled from 'styled-components';
 
 const ListContainer = styled.div`
-  display: ${props => (props.active ? 'block' : 'none')};
   margin-top: 3px;
+
   border: 1px solid #bfc5cd;
   border-radius: 5px;
   color: #4a4a4a;
   box-shadow: 0 5px 15px 0 rgba(74, 74, 74, 0.15);
-  min-width: 150px;
 `;
 
 const Ul = styled.ul`
+  max-height: calc(80vh - 4em);
   list-style-type: none;
   border-radius: 5px;
   padding: 0;
   margin: 0;
   overflow-y: ${props => (props.hideScroll ? 'hidden' : 'scroll')};
   overflow-x: hidden;
-  max-height: 370px;
-
-  @media (max-width: 600px) {
-    max-height: 250px;
-  }
-
-  @media (min-width: 900px) {
-    max-height: 490px;
-  }
 
   ::-webkit-scrollbar {
     -webkit-appearance: none;

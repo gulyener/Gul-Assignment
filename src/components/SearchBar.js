@@ -14,8 +14,7 @@ const namesList = data.default
 const transition = '0.35s ease-in-out';
 
 const Container = styled.div`
-  margin: 0 auto;
-  padding: 100px 50px;
+  padding: 20px;
 `;
 
 const ChevronIcon = styled(ChevronDown)`
@@ -61,7 +60,6 @@ const FloatingLabel = styled.label`
 
 const Input = styled.input`
   flex-grow: 1;
-  min-width: 80px;
   margin: 0;
   padding: 16px 0px;
   font-size: 16px;
@@ -80,7 +78,6 @@ const InputContainer = styled.div`
   transition: ${transition};
   display: flex;
   justify-content: flex-start;
-  min-width: 150px;
   color: #798697;
   background-color: white;
   border: 1px solid #bfc5cd;
@@ -124,13 +121,9 @@ const SearchBar = () => {
 
   const clearSearchField = event => {
     event.stopPropagation();
-    if (searchField) {
-      setSearchField('');
-      inputRef.current.focus();
-    } else {
-      setIsOpen(false);
-      setIsAbove(false);
-    }
+    setSearchField('');
+    setIsAbove(false);
+    setIsOpen(false);
   };
 
   return (
@@ -171,7 +164,6 @@ const SearchBar = () => {
         </InputContainer>
         {filteredNames.length > 0 && (
           <DropdownList
-            isOpen={isOpen}
             handleClick={handleClick}
             names={filteredNames}
             data-testid="DropdownListComponent"
