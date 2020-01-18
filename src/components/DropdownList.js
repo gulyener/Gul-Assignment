@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 const ListContainer = styled.div`
-  margin-top: 3px;
-
+  position: absolute;
+  display: ${props => (props.active ? 'block' : 'none')};
+  margin-top: ${props => (props.reverse ? null : '3px')};
   border: 1px solid #bfc5cd;
-  border-radius: 5px;
+  border-radius: 6px;
   color: #4a4a4a;
   box-shadow: 0 5px 15px 0 rgba(74, 74, 74, 0.15);
+  z-index: 10;
+  bottom: ${props => (props.reverse ? '80%' : null)};
 `;
 
 const Ul = styled.ul`
-  max-height: calc(80vh - 4em);
+  max-height: ${props => props.height + 'px'};
   list-style-type: none;
   border-radius: 5px;
   padding: 0;
@@ -54,11 +57,34 @@ const Li = styled.li`
   }
 `;
 
-const DropdownList = ({ names, handleClick, isOpen }) => {
+const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
+  const [isReverse, setIsReverse] = useState(false);
+  const [listHeight, setListHeight] = useState('200px');
+
+  let viewportOffset;
+  if (inputRef.current) {
+    viewportOffset = inputRef.current.getBoundingClientRect();
+  }
+
+  useLayoutEffect(() => {
+    if (inputRef.current) {
+      const inputBottom = inputRef.current.getBoundingClientRect().bottom;
+      const distanceToBottom = window.innerHeight - inputBottom;
+      const distanceToTop = inputBottom - 50;
+      if (distanceToTop > distanceToBottom) {
+        setIsReverse(true);
+        setListHeight(inputBottom - 80);
+      } else {
+        setIsReverse(false);
+        setListHeight(distanceToBottom - 40);
+      }
+    }
+  }, [viewportOffset]);
+
   return (
-    <ListContainer active={isOpen} aria-label="List of names">
-      <Ul role="listbox" hideScroll={names.length < 6 ? true : null}>
-        {names.map(item => (
+    <ListContainer active={isOpen} reverse={isReverse} aria-label="List of names">
+      <Ul role="listbox" hideScroll={items.length === 1 ? true : null} height={listHeight}>
+        {items.map(item => (
           <Li role="option" onClick={handleClick} data-id={item.name} key={item.name}>
             {item.name}
           </Li>

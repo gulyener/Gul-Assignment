@@ -1,20 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { ChevronDown } from 'styled-icons/boxicons-regular/ChevronDown';
 import { CloseCircle } from 'styled-icons/remix-line/CloseCircle';
 import { Search } from 'styled-icons/icomoon/Search';
-import * as data from '../../MOCK_DATA.json';
 import DropdownList from './DropdownList';
-
-// filter out the names that are null and sort by alphabetical order
-const namesList = data.default
-  .filter(option => option.name)
-  .sort((a, b) => a.name.localeCompare(b.name));
 
 const transition = '0.35s ease-in-out';
 
 const Container = styled.div`
+  position: relative;
   padding: 20px;
+  background-color: red;
 `;
 
 const ChevronIcon = styled(ChevronDown)`
@@ -87,27 +83,34 @@ const InputContainer = styled.div`
   }
 `;
 
-const SearchBar = () => {
+const SearchBar = ({ content, selectedName, setSelectedName }) => {
+  const [items, setItems] = useState(content);
+  const [initialItems, setInitialItems] = useState(content);
   const [searchField, setSearchField] = useState('');
   const [isAbove, setIsAbove] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const inputRef = useRef();
 
-  const filteredNames = namesList.filter(option => {
-    const userName = option.name.toLowerCase();
-    const searchText = searchField.toLowerCase();
-    return userName.includes(searchText);
-  });
+  useEffect(() => {
+    if (searchField.length > 0) {
+      const newList = initialItems.filter(option => {
+        const userName = option.name.toLowerCase();
+        const searchText = searchField.toLowerCase();
+        return userName.includes(searchText);
+      });
+      setItems(newList);
+    }
+  }, [searchField]);
 
   const handleChange = event => {
-    const searchText = event.target.value;
-    setSearchField(searchText);
+    setSearchField(event.target.value);
   };
 
   const handleClick = event => {
     const value = event.target.dataset.id;
     setSearchField(value);
+    setSelectedName(value);
     if (value) {
       setIsAbove(true);
       setIsOpen(false);
@@ -121,56 +124,61 @@ const SearchBar = () => {
 
   const clearSearchField = event => {
     event.stopPropagation();
-    setSearchField('');
-    setIsAbove(false);
-    setIsOpen(false);
+    if (searchField) {
+      setSearchField('');
+      inputRef.current.focus();
+    } else {
+      setIsOpen(false);
+      setIsAbove(false);
+      setItems(content);
+    }
   };
 
   return (
-    <>
-      <Container>
-        <InputContainer
-          data-testid="InputComponent"
-          role="search"
-          aria-label="Search for names"
-          onClick={() => inputRef.current.focus()}
-        >
-          <SearchIcon active={isOpen} />
-          <FloatingLabel htmlFor="floatField" above={isAbove}>
-            Contact
-          </FloatingLabel>
-          <Input
-            id="floatField"
-            type="text"
-            value={searchField}
-            placeholder={isOpen ? 'Type or search...' : ''}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            ref={inputRef}
-            above={isAbove}
-            active={isOpen}
-            data-testid="InputField"
+    <Container>
+      <InputContainer
+        data-testid="InputComponent"
+        role="search"
+        aria-label="Search for names"
+        onClick={() => inputRef.current.focus()}
+      >
+        <SearchIcon active={isOpen} />
+        <FloatingLabel htmlFor="floatField" above={isAbove}>
+          Contact
+        </FloatingLabel>
+        <Input
+          id="floatField"
+          type="text"
+          value={searchField}
+          placeholder={isOpen ? 'Type or search...' : ''}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          ref={inputRef}
+          above={isAbove}
+          active={isOpen}
+          data-testid="InputField"
+        />
+        {isOpen ? (
+          <ResetIcon
+            role="button"
+            aria-label="Clear and exit"
+            onClick={clearSearchField}
+            data-testid="CloseButton"
           />
-          {isOpen ? (
-            <ResetIcon
-              role="button"
-              aria-label="Clear and exit"
-              onClick={clearSearchField}
-              data-testid="CloseButton"
-            />
-          ) : (
-            <ChevronIcon />
-          )}
-        </InputContainer>
-        {filteredNames.length > 0 && (
-          <DropdownList
-            handleClick={handleClick}
-            names={filteredNames}
-            data-testid="DropdownListComponent"
-          ></DropdownList>
+        ) : (
+          <ChevronIcon />
         )}
-      </Container>
-    </>
+      </InputContainer>
+      {items.length > 0 && (
+        <DropdownList
+          isOpen={isOpen}
+          handleClick={handleClick}
+          items={items}
+          inputRef={inputRef}
+          data-testid="DropdownListComponent"
+        />
+      )}
+    </Container>
   );
 };
 
