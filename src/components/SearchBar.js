@@ -86,7 +86,7 @@ const SearchIcon = styled(Search)`
   padding: 0 10px;
 `;
 
-const SearchBar = ({ content, selectedName, setSelectedName, id }) => {
+const SearchBar = ({ content, selectedName, setSelectedName }) => {
   const [items, setItems] = useState(content);
   const [initialItems, setInitialItems] = useState(content);
   const [searchField, setSearchField] = useState('');

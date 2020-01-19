@@ -60,7 +60,7 @@ const Li = styled.li`
 
 const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
   const [isReverse, setIsReverse] = useState(false);
-  const [listHeight, setListHeight] = useState('200px');
+  const [listHeight, setListHeight] = useState(200);
 
   let distanceToBottom;
   if (inputRef.current) {
@@ -90,7 +90,7 @@ const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
         setListHeight(distanceToBottom - 40);
       }
     }
-  }, 200);
+  }, 400);
 
   useLayoutEffect(() => {
     debouncedHandleResize();
@@ -107,7 +107,12 @@ const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
 
   return (
     <ListContainer active={isOpen} reverse={isReverse} aria-label="List of names">
-      <Ul role="listbox" hideScroll={items.length === 1 ? true : null} height={listHeight}>
+      <Ul
+        role="listbox"
+        hideScroll={items.length === 1 ? true : null}
+        height={listHeight}
+        data-testid="ulElement"
+      >
         {items.map(item => (
           <Li role="option" onClick={handleClick} data-id={item.name} key={item.name}>
             {item.name}
