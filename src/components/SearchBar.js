@@ -3,14 +3,58 @@ import styled from 'styled-components';
 import { ChevronDown } from 'styled-icons/boxicons-regular/ChevronDown';
 import { CloseCircle } from 'styled-icons/remix-line/CloseCircle';
 import { Search } from 'styled-icons/icomoon/Search';
+import { useUID } from 'react-uid';
+
 import DropdownList from './DropdownList';
 
 const transition = '0.35s ease-in-out';
 
 const Container = styled.div`
   position: relative;
+  height: 60px;
   padding: 20px;
   background-color: red;
+`;
+
+const InputContainer = styled.div`
+  position: absolute;
+  transition: ${transition};
+  display: flex;
+  justify-content: flex-start;
+  color: #798697;
+  background-color: white;
+  border: 1px solid #bfc5cd;
+  border-radius: 5px;
+  &:hover {
+    border: 1px solid #4a4a4a;
+  }
+`;
+
+const Input = styled.input`
+  flex-grow: 1;
+  margin: 0;
+  padding: 16px 0px;
+  font-size: 16px;
+  color: ${props => (props.above ? '#4a4a4a' : '#798697')};
+  background-color: transparent;
+  padding-left: ${props => (props.above && !props.active ? '30px' : '0')};
+  border: none;
+  outline: 0;
+  overflow: hidden;
+  ::placeholder {
+    color: #bfc5cd;
+  }
+`;
+
+const FloatingLabel = styled.label`
+  position: absolute;
+  font-size: 20px;
+  transform: ${props =>
+    props.above ? 'translate(3px, -22px) scale(0.8)' : 'translate(35px, 14px) scale(1)'};
+  transition: ${transition};
+  &:hover {
+    cursor: text;
+  }
 `;
 
 const ChevronIcon = styled(ChevronDown)`
@@ -43,47 +87,7 @@ const SearchIcon = styled(Search)`
   padding: 0 10px;
 `;
 
-const FloatingLabel = styled.label`
-  position: absolute;
-  font-size: 20px;
-  transform: ${props =>
-    props.above ? 'translate(3px, -22px) scale(0.8)' : 'translate(35px, 14px) scale(1)'};
-  transition: ${transition};
-  &:hover {
-    cursor: text;
-  }
-`;
-
-const Input = styled.input`
-  flex-grow: 1;
-  margin: 0;
-  padding: 16px 0px;
-  font-size: 16px;
-  color: ${props => (props.above ? '#4a4a4a' : '#798697')};
-  background-color: transparent;
-  padding-left: ${props => (props.above && !props.active ? '30px' : '0')};
-  border: none;
-  outline: 0;
-  overflow: hidden;
-  ::placeholder {
-    color: #bfc5cd;
-  }
-`;
-
-const InputContainer = styled.div`
-  transition: ${transition};
-  display: flex;
-  justify-content: flex-start;
-  color: #798697;
-  background-color: white;
-  border: 1px solid #bfc5cd;
-  border-radius: 5px;
-  &:hover {
-    border: 1px solid #4a4a4a;
-  }
-`;
-
-const SearchBar = ({ content, selectedName, setSelectedName }) => {
+const SearchBar = ({ content, selectedName, setSelectedName, id }) => {
   const [items, setItems] = useState(content);
   const [initialItems, setInitialItems] = useState(content);
   const [searchField, setSearchField] = useState('');
@@ -91,6 +95,7 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const inputRef = useRef();
+  const uid = useUID();
 
   useEffect(() => {
     if (searchField.length > 0) {
@@ -124,13 +129,13 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
 
   const clearSearchField = event => {
     event.stopPropagation();
+    setItems(content);
     if (searchField) {
       setSearchField('');
       inputRef.current.focus();
     } else {
       setIsOpen(false);
       setIsAbove(false);
-      setItems(content);
     }
   };
 
@@ -143,11 +148,11 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
         onClick={() => inputRef.current.focus()}
       >
         <SearchIcon active={isOpen} />
-        <FloatingLabel htmlFor="floatField" above={isAbove}>
+        <FloatingLabel htmlFor={uid} above={isAbove}>
           Contact
         </FloatingLabel>
         <Input
-          id="floatField"
+          id={uid}
           type="text"
           value={searchField}
           placeholder={isOpen ? 'Type or search...' : ''}

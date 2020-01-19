@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const ListContainer = styled.div`
   position: absolute;
   display: ${props => (props.active ? 'block' : 'none')};
-  margin-top: ${props => (props.reverse ? null : '3px')};
+  margin-top: ${props => (props.reverse ? null : '60px')};
   border: 1px solid #bfc5cd;
   border-radius: 6px;
   color: #4a4a4a;
