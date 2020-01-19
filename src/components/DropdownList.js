@@ -1,16 +1,17 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 const ListContainer = styled.div`
   position: absolute;
+  width: 45vw;
   display: ${props => (props.active ? 'block' : 'none')};
-  margin-top: ${props => (props.reverse ? null : '60px')};
+  margin-top: ${props => (props.reverse ? null : '2px')};
+  bottom: ${props => (props.reverse ? '82%' : null)};
   border: 1px solid #bfc5cd;
   border-radius: 6px;
   color: #4a4a4a;
   box-shadow: 0 5px 15px 0 rgba(74, 74, 74, 0.15);
   z-index: 10;
-  bottom: ${props => (props.reverse ? '80%' : null)};
 `;
 
 const Ul = styled.ul`
@@ -61,25 +62,48 @@ const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
   const [isReverse, setIsReverse] = useState(false);
   const [listHeight, setListHeight] = useState('200px');
 
-  let viewportOffset;
+  let distanceToBottom;
   if (inputRef.current) {
-    viewportOffset = inputRef.current.getBoundingClientRect();
+    distanceToBottom = window.innerHeight - inputRef.current.getBoundingClientRect().bottom;
   }
 
-  useLayoutEffect(() => {
+  function debounce(fn, ms) {
+    let timer;
+    return _ => {
+      clearTimeout(timer);
+      timer = setTimeout(_ => {
+        timer = null;
+        fn.apply(this, arguments);
+      }, ms);
+    };
+  }
+
+  const debouncedHandleResize = debounce(function handleResize() {
     if (inputRef.current) {
-      const inputBottom = inputRef.current.getBoundingClientRect().bottom;
-      const distanceToBottom = window.innerHeight - inputBottom;
-      const distanceToTop = inputBottom - 50;
+      const distanceToTop = inputRef.current.getBoundingClientRect().bottom;
+      const distanceToBottom = window.innerHeight - distanceToTop;
       if (distanceToTop > distanceToBottom) {
         setIsReverse(true);
-        setListHeight(inputBottom - 80);
+        setListHeight(distanceToTop - 80);
       } else {
         setIsReverse(false);
         setListHeight(distanceToBottom - 40);
       }
     }
-  }, [viewportOffset]);
+  }, 200);
+
+  useLayoutEffect(() => {
+    debouncedHandleResize();
+  }, [distanceToBottom]);
+
+  useEffect(() => {
+    window.addEventListener('resize', debouncedHandleResize);
+    window.addEventListener('scroll', debouncedHandleResize);
+    return () => {
+      window.removeEventListener('resize', debouncedHandleResize);
+      window.addEventListener('scroll', debouncedHandleResize);
+    };
+  }, [distanceToBottom]);
 
   return (
     <ListContainer active={isOpen} reverse={isReverse} aria-label="List of names">

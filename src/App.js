@@ -4,10 +4,7 @@ import styled from 'styled-components';
 
 import * as data from '../MOCK_DATA.json';
 
-const MainContainer = styled.div`
-  margin: 0 auto;
-  padding: 20px;
-`;
+const MainContainer = styled.div``;
 
 const namesList = data.default
   .filter(option => option.name)
@@ -19,13 +16,13 @@ const App = () => {
   return (
     <>
       <MainContainer>
-        <div style={{ width: '500px', height: '800px', backgroundColor: 'blue' }}></div>
+        <div style={{ height: '600px', backgroundColor: 'blue' }}></div>
         <SearchBar
           content={namesList}
           selectedName={selectedName}
           setSelectedName={setSelectedName}
         />
-        <div style={{ width: '600px', height: '900px', backgroundColor: 'pink' }}></div>
+        <div style={{ height: '900px', backgroundColor: 'pink' }}></div>
       </MainContainer>
     </>
   );

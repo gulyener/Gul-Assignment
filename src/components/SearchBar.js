@@ -13,11 +13,10 @@ const Container = styled.div`
   position: relative;
   height: 60px;
   padding: 20px;
-  background-color: red;
+  background-color: orange;
 `;
 
 const InputContainer = styled.div`
-  position: absolute;
   transition: ${transition};
   display: flex;
   justify-content: flex-start;
