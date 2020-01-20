@@ -11,9 +11,7 @@ const transition = '0.35s ease-in-out';
 
 const Container = styled.div`
   position: relative;
-  height: 60px;
   padding: 20px;
-  background-color: orange;
 `;
 
 const InputContainer = styled.div`

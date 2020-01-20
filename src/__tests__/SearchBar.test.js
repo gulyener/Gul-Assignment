@@ -3,25 +3,31 @@ import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import 'jest-styled-components';
 import SearchBar from '../components/SearchBar';
-import App from '../App';
 
 describe('<SearchBar/> Component', () => {
+  const names = [{ name: 'John Doe' }, { name: 'Jane Doe' }, { name: 'Elle Woods' }];
   let wrapper;
 
+  const props = {
+    content: names,
+    selectedName: '',
+    setSelectedName: jest.fn(),
+  };
+
   beforeEach(() => {
-    wrapper = mount(<App />);
+    wrapper = mount(<SearchBar {...props} />);
   });
 
   afterEach(() => {
     wrapper.unmount();
   });
 
-  // // Match snapshot
-  // it('renders <SearchBar/> snapshot', () => {
-  //   expect(wrapper).toMatchSnapshot();
-  // });
+  // Match snapshot
+  it('renders <SearchBar/> snapshot', () => {
+    expect(wrapper).toMatchSnapshot();
+  });
 
-  // // Step 1: User sees an input
+  // Step 1: User sees an input
   it('renders <SearchBar/> correctly', () => {
     expect(wrapper.isEmptyRender()).toEqual(false);
   });
@@ -201,5 +207,18 @@ describe('<SearchBar/> Component', () => {
     expect(ulElement.props().height).not.toEqual(200);
     expect(ulElement.props().height).toBeGreaterThan(0);
     expect(ulElement.props().height).toEqual(360);
+  });
+
+  it('calls setSelectedName on click', () => {
+    const InputField = wrapper.find({ 'data-testid': 'InputField' }).at(0);
+    const liElement = wrapper.find('li').at(0);
+
+    act(() => {
+      InputField.prop('onFocus')();
+    });
+    liElement.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.props().setSelectedName).toHaveBeenCalled();
   });
 });
