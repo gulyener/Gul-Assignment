@@ -101,7 +101,7 @@ const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
     window.addEventListener('scroll', debouncedHandleResize);
     return () => {
       window.removeEventListener('resize', debouncedHandleResize);
-      window.addEventListener('scroll', debouncedHandleResize);
+      window.removeEventListener('scroll', debouncedHandleResize);
     };
   }, [distanceToBottom]);
 
