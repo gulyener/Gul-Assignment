@@ -93,6 +93,7 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
 
   const inputRef = useRef();
   const uid = useUID();
+  let timeOutId = null;
 
   useEffect(() => {
     if (searchField.length > 0) {
@@ -110,6 +111,7 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
   };
 
   const handleClick = event => {
+    clearTimeout(timeOutId);
     const value = event.target.dataset.id;
     setSearchField(value);
     setSelectedName(value);
@@ -120,6 +122,7 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
   };
 
   const handleFocus = () => {
+    clearTimeout(timeOutId);
     setIsAbove(true);
     setIsOpen(true);
   };
@@ -134,6 +137,14 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
       setIsOpen(false);
       setIsAbove(false);
     }
+  };
+
+  const handleBlur = () => {
+    timeOutId = setTimeout(() => {
+      setSearchField('');
+      setIsOpen(false);
+      setIsAbove(false);
+    }, 100);
   };
 
   return (
@@ -155,6 +166,7 @@ const SearchBar = ({ content, selectedName, setSelectedName }) => {
           placeholder={isOpen ? 'Type or search...' : ''}
           onChange={handleChange}
           onFocus={handleFocus}
+          onBlur={handleBlur}
           ref={inputRef}
           above={isAbove}
           active={isOpen}
