@@ -101,20 +101,42 @@ const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
     window.addEventListener('scroll', debouncedHandleResize);
     return () => {
       window.removeEventListener('resize', debouncedHandleResize);
-      window.addEventListener('scroll', debouncedHandleResize);
+      window.removeEventListener('scroll', debouncedHandleResize);
     };
   }, [distanceToBottom]);
 
+  const onKeyPressed = e => {
+    if (e.keyCode === 13) {
+      handleClick(e);
+    } else if (e.keyCode === 16) {
+      e.preventDefault();
+      inputRef.current.focus();
+    }
+    console.log(e.keyCode);
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyPressed);
+    return () => {
+      window.removeEventListener('keydown', onKeyPressed);
+    };
+  }, []);
+
   return (
-    <ListContainer active={isOpen} reverse={isReverse} aria-label="List of names">
+    <ListContainer
+      active={isOpen}
+      reverse={isReverse}
+      aria-label="List of names"
+      onKeyDown={onKeyPressed}
+    >
       <Ul
         role="listbox"
         hideScroll={items.length === 1 ? true : null}
         height={listHeight}
         data-testid="ulElement"
       >
-        {items.map(item => (
-          <Li role="option" onClick={handleClick} data-id={item.name} key={item.name}>
+        {items.map((item, i) => (
+          <Li tabIndex="0" role="option" onClick={handleClick} data-id={item.name} key={item.name}>
             {item.name}
           </Li>
         ))}
