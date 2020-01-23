@@ -93,16 +93,15 @@ const DropdownList = ({ items, handleClick, isOpen, inputRef }) => {
   }, 400);
 
   useLayoutEffect(() => {
-    debouncedHandleResize();
-  }, [distanceToBottom]);
-
-  useEffect(() => {
-    window.addEventListener('resize', debouncedHandleResize);
-    window.addEventListener('scroll', debouncedHandleResize);
-    return () => {
-      window.removeEventListener('resize', debouncedHandleResize);
-      window.removeEventListener('scroll', debouncedHandleResize);
-    };
+    if (isOpen) {
+      debouncedHandleResize();
+      window.addEventListener('resize', debouncedHandleResize);
+      window.addEventListener('scroll', debouncedHandleResize);
+      return () => {
+        window.removeEventListener('resize', debouncedHandleResize);
+        window.removeEventListener('scroll', debouncedHandleResize);
+      };
+    }
   }, [distanceToBottom]);
 
   return (
